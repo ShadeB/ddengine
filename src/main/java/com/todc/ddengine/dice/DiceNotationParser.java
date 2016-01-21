@@ -33,7 +33,11 @@ public class DiceNotationParser {
         if (matcher.matches()) {
             int qty = Integer.parseInt(matcher.group(1));
             int sides = Integer.parseInt(matcher.group(3));
-            int modifier = Integer.parseInt(matcher.group(4));
+
+            int modifier = 0;
+            if (matcher.group(4) != null) {
+                modifier = Integer.parseInt(matcher.group(4));
+            }
 
             return new Dice(qty, sides, modifier);
         }

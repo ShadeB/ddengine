@@ -42,6 +42,10 @@ class RollResults {
         return IntStream.of(rolls).max().getAsInt();
     }
 
+    public int[] rolls() {
+        return rolls;
+    }
+
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("dice = " + dice);

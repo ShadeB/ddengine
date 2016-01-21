@@ -41,10 +41,6 @@ public class Dice {
     // --------------------------------------------------------------- Mutators
 
 
-    public Random getRandomNumberGenerator() {
-        return rng;
-    }
-
     public void setRandomNumberGenerator(Random rng) {
         this.rng = rng;
     }
@@ -131,17 +127,6 @@ public class Dice {
 
     private int rollDie() {
         return rng.nextInt(sides) + 1;
-    }
-
-
-    public static void main(String... args) throws Exception {
-        System.out.println(Dice.create().sides(6).quantity(3).roll());
-        System.out.println(Dice.create().sides(6).quantity(4).modifier(2).roll());
-        System.out.println(Dice.create().sides(6).quantity(4).modifier(-1).roll());
-        System.out.println(new Dice(1, 8).roll());
-        System.out.println(new Dice(1, 10, 2).roll());
-        System.out.println(Dice.roll("2d6+1"));
-        System.out.println(Dice.roll("2d6-2"));
     }
 
 }
