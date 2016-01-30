@@ -1,12 +1,18 @@
 package com.todc.ddengine.ui;
 
+import com.todc.ddengine.ui.terminal.Terminal;
+import com.todc.ddengine.world.Map;
+import com.todc.ddengine.world.MapBuilder;
+import com.todc.ddengine.world.Terrain;
+import com.todc.ddengine.world.Tile;
+
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+
 
 /**
- * @author Tim O'Donnell (tim.odonnell@imperva.com)
+ * @author Tim O'Donnell (tim@timodonnell.com)
  */
 /*
 public class Game {
@@ -42,27 +48,101 @@ public class Game {
 }
 */
 
-public class Game {
+public class Game extends JFrame {
+
+    private static Terminal terminal;
+    private static Map map;
+    private static int playerX = 1;
+    private static int playerY = 1;
 
     public static void main(String... args) throws Exception {
-        JFrame window = new JFrame("my window title");
-        window.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        window.setBounds(50, 50, 400, 300);
-        window.setBackground(Color.BLACK);
+        //SwingUtilities.invokeLater(() -> {
+            JFrame window = new JFrame("my window title");
+            window.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-        // we'll explicitly paint our UI as needed
-        window.setIgnoreRepaint(true);
+            // center window in monitor
+            window.setLocationRelativeTo(null);
 
-        // create components and put them in the frame
-        Terminal terminal = new Terminal();
-        terminal.setIgnoreRepaint(true);
-        terminal.setSize(100, 100);
+            // we'll explicitly paint our UI as needed
+            window.setIgnoreRepaint(true);
 
-        window.add(terminal);
-        window.pack();
-        window.setVisible(true);
+            map = MapBuilder.fromString(
+                    "##########\n" +
+                    "#........#\n" +
+                    "#........#\n" +
+                    "#........#\n" +
+                    "#........#\n" +
+                    "##########\n"
+            );
 
-        window.repaint();
+            // create components and put them in the frame
+            terminal = new Terminal(20, 10);
+
+            for (int y=0; y<map.getTiles().length; y++) {
+                Tile[] cols = map.getTiles()[y];
+
+                for (int x=0; x<cols.length; x++) {
+                    Tile tile = cols[x];
+                    String glyph = getGlyph(tile.getTerrainType());
+
+                    terminal.setCell(x, y, glyph, Color.WHITE, Color.BLACK);
+                }
+            }
+
+            window.add(terminal);
+            window.pack();
+            window.setVisible(true);
+
+            window.repaint();
+
+            System.out.println("Waiting for key presses...");
+            boolean quit = false;
+            while (!quit) {
+                if (!terminal.hasFocus()) {
+                    terminal.requestFocusInWindow();
+                }
+
+                int key = terminal.getKeyPressed();
+
+                switch (key) {
+                    case KeyEvent.VK_Q:
+                        quit = true;
+                        break;
+                    case KeyEvent.VK_LEFT:
+                        movePlayer(-1, 0);
+                        break;
+                    case KeyEvent.VK_RIGHT:
+                        movePlayer(1, 0);
+                        break;
+                    case KeyEvent.VK_UP:
+                        movePlayer(0, -1);
+                        break;
+                    case KeyEvent.VK_DOWN:
+                        movePlayer(0, 1);
+                        break;
+                }
+            }
+        //});
+    }
+
+    @Override
+    public Dimension getPreferredSize() {
+        return new Dimension(400, 400);
+    }
+
+    private static void movePlayer(int xDelta, int yDelta) {
+
+    }
+
+    private static String getGlyph(int terrainType) {
+        switch (terrainType) {
+            case Terrain.FLOOR:
+                return ".";
+            case Terrain.WALL:
+                return "#";
+            default:
+                return "!";
+        }
     }
 
 }
