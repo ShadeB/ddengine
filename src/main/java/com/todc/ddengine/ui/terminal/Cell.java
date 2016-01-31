@@ -22,7 +22,7 @@ public class Cell {
     private String glyph;
     private Color foreground;
     private Color background;
-    private boolean dirty;
+    private boolean dirty = true;
 
 
     // --------------------------------------------------------------- Mutators

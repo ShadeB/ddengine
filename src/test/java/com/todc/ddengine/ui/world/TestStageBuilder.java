@@ -1,8 +1,8 @@
 package com.todc.ddengine.ui.world;
 
 
-import com.todc.ddengine.world.Map;
-import com.todc.ddengine.world.MapBuilder;
+import com.todc.ddengine.world.Stage;
+import com.todc.ddengine.world.StageBuilder;
 import com.todc.ddengine.world.Tile;
 import org.junit.Test;
 
@@ -12,7 +12,7 @@ import static com.todc.ddengine.world.Terrain.*;
 /**
  * @author Tim O'Donnell (tim@timodonnell.com)
  */
-public class TestMapBuilder {
+public class TestStageBuilder {
 
     @Test
     public void testFromStringValid() {
@@ -21,7 +21,7 @@ public class TestMapBuilder {
                    "#...#\n" +
                    "#####\n";
 
-        Map gameMap = MapBuilder.fromString(s);
+        Stage gameMap = StageBuilder.fromString(s);
         Tile[][] tiles = gameMap.getTiles();
 
         assertEquals(WALL, tiles[0][0].getTerrainType());

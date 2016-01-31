@@ -1,14 +1,22 @@
 package com.todc.ddengine.ui;
 
+import com.todc.ddengine.util.Direction;
+import com.todc.ddengine.action.Action;
+import com.todc.ddengine.action.MoveAction;
+import com.todc.ddengine.action.NoOpAction;
 import com.todc.ddengine.ui.terminal.Terminal;
-import com.todc.ddengine.world.Map;
-import com.todc.ddengine.world.MapBuilder;
+import com.todc.ddengine.world.Actor;
+import com.todc.ddengine.world.Stage;
+import com.todc.ddengine.world.StageBuilder;
 import com.todc.ddengine.world.Terrain;
 import com.todc.ddengine.world.Tile;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.event.KeyEvent;
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
 
 
 /**
@@ -48,15 +56,31 @@ public class Game {
 }
 */
 
-public class Game extends JFrame {
+public class Game {
 
-    private static Terminal terminal;
-    private static Map map;
+
     private static int playerX = 1;
     private static int playerY = 1;
 
+
     public static void main(String... args) throws Exception {
-        //SwingUtilities.invokeLater(() -> {
+        Actor hero = new Actor();
+
+        Stage stage = StageBuilder.fromString(
+                "##########\n" +
+                "#........#\n" +
+                "#........#\n" +
+                "#........#\n" +
+                "#........#\n" +
+                "##########\n"
+        );
+        stage.setHero(hero);
+
+        Terminal terminal = new Terminal(20, 10);
+
+        Screen screen = new Screen(stage, terminal);
+
+        SwingUtilities.invokeLater(() -> {
             JFrame window = new JFrame("my window title");
             window.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
@@ -66,82 +90,44 @@ public class Game extends JFrame {
             // we'll explicitly paint our UI as needed
             window.setIgnoreRepaint(true);
 
-            map = MapBuilder.fromString(
-                    "##########\n" +
-                    "#........#\n" +
-                    "#........#\n" +
-                    "#........#\n" +
-                    "#........#\n" +
-                    "##########\n"
-            );
-
-            // create components and put them in the frame
-            terminal = new Terminal(20, 10);
-
-            for (int y=0; y<map.getTiles().length; y++) {
-                Tile[] cols = map.getTiles()[y];
-
-                for (int x=0; x<cols.length; x++) {
-                    Tile tile = cols[x];
-                    String glyph = getGlyph(tile.getTerrainType());
-
-                    terminal.setCell(x, y, glyph, Color.WHITE, Color.BLACK);
-                }
-            }
-
             window.add(terminal);
             window.pack();
             window.setVisible(true);
 
             window.repaint();
+        });
 
-            System.out.println("Waiting for key presses...");
-            boolean quit = false;
-            while (!quit) {
-                if (!terminal.hasFocus()) {
-                    terminal.requestFocusInWindow();
-                }
-
-                int key = terminal.getKeyPressed();
-
-                switch (key) {
-                    case KeyEvent.VK_Q:
-                        quit = true;
-                        break;
-                    case KeyEvent.VK_LEFT:
-                        movePlayer(-1, 0);
-                        break;
-                    case KeyEvent.VK_RIGHT:
-                        movePlayer(1, 0);
-                        break;
-                    case KeyEvent.VK_UP:
-                        movePlayer(0, -1);
-                        break;
-                    case KeyEvent.VK_DOWN:
-                        movePlayer(0, 1);
-                        break;
-                }
+        boolean quit = false;
+        while (!quit) {
+            if (!terminal.hasFocus()) {
+                terminal.requestFocusInWindow();
             }
-        //});
-    }
 
-    @Override
-    public Dimension getPreferredSize() {
-        return new Dimension(400, 400);
-    }
+            Integer key = terminal.getKeyPressed();
+            if (key == null) continue;
 
-    private static void movePlayer(int xDelta, int yDelta) {
+            Action action = new NoOpAction();
 
-    }
+            switch (key) {
+                case KeyEvent.VK_Q:
+                    quit = true;
+                    break;
+                case KeyEvent.VK_LEFT:
+                    action = new MoveAction(stage, stage.getHero(), Direction.W);
+                    break;
+                case KeyEvent.VK_RIGHT:
+                    action = new MoveAction(stage, stage.getHero(), Direction.E);
+                    break;
+                case KeyEvent.VK_UP:
+                    action = new MoveAction(stage, stage.getHero(), Direction.N);
+                    break;
+                case KeyEvent.VK_DOWN:
+                    action = new MoveAction(stage, stage.getHero(), Direction.S);
+                    break;
+            }
 
-    private static String getGlyph(int terrainType) {
-        switch (terrainType) {
-            case Terrain.FLOOR:
-                return ".";
-            case Terrain.WALL:
-                return "#";
-            default:
-                return "!";
+            action.perform();
+            terminal.repaint();
         }
     }
 

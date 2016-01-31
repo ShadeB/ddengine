@@ -4,7 +4,7 @@ package com.todc.ddengine.world;
 /**
  * @author Tim O'Donnell (tim@timodonnell.com)
  */
-public class MapBuilder {
+public class StageBuilder {
 
 
     // -------------------------------------------------------------- Constants
@@ -19,7 +19,7 @@ public class MapBuilder {
     }};
 
 
-    public static Map fromString(String s) {
+    public static Stage fromString(String s) {
         if (s == null || s.length() == 0) {
             throw new IllegalArgumentException("No map data found in String");
         }
@@ -45,7 +45,7 @@ public class MapBuilder {
             }
         }
 
-        return new Map(tiles);
+        return new Stage(tiles);
     }
 
 

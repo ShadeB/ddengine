@@ -2,7 +2,6 @@ package com.todc.ddengine.ui.terminal;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.geom.Rectangle2D;
 
 
 /**
@@ -66,9 +65,15 @@ public class Terminal extends JPanel {
         this.cells[y][x] = new Cell(glyph, fg, bg);
     }
 
+    public Cell getCell(int x, int y) {
+        return this.cells[y][x];
+    }
+
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
+
+        System.out.println("Painting terminal");
 
         if (g instanceof Graphics2D) {
             Graphics2D g2 = (Graphics2D)g;
@@ -76,27 +81,25 @@ public class Terminal extends JPanel {
             g2.setFont(font);
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-            FontMetrics metrics = g.getFontMetrics(this.font);
-            if (fontHeight == -1 && fontWidth == -1) {
-                fontHeight = metrics.getHeight();
-                fontWidth = metrics.charWidth('W');
+            calculateFontMetrics(g2);
 
-                System.out.println("Font height: " + fontHeight);
-                System.out.println("Font width:  " + fontWidth);
-            }
+            // draw the tiles
+            for (int rowNum=0; rowNum<cells.length; rowNum++) {
+                for (int colNum=0; colNum<cells[rowNum].length; colNum++) {
+                    Cell currentCell = cells[rowNum][colNum];
 
-            for (int r=0; r<cells.length; r++) {
-                for (int c=0; c<cells[r].length; c++) {
-                    Cell currentCell = cells[r][c];
+                    int x = xInset + colNum * fontWidth;
+                    int y = yInset + rowNum * fontHeight;
 
-                    int x = xInset + c * fontWidth;
-                    int y = yInset + r * fontHeight;
-
+                    // paint background via fill since Graphics.setBackground() doesn't seem to work
                     g2.setPaint(currentCell.getBackground());
                     g2.fill(new Rectangle(x, y, fontWidth, fontHeight));
 
+                    // paint the foreground
                     g2.setColor(currentCell.getForeground());
                     g2.drawString(currentCell.getGlyph(), x, y + fontHeight);
+
+                    currentCell.setDirty(false);
                 }
             }
         }
@@ -105,6 +108,10 @@ public class Terminal extends JPanel {
     @Override
     public Dimension getPreferredSize() {
         return new Dimension(200, 200);
+    }
+
+    public void refresh() {
+        this.repaint();
     }
 
 
@@ -130,7 +137,7 @@ public class Terminal extends JPanel {
     private void calculateFontMetrics(Graphics2D g) {
         if (fontHeight == -1 && fontWidth == -1) {
             FontMetrics metrics = g.getFontMetrics(this.font);
-            fontHeight = metrics.getHeight() + metrics.getMaxAscent();
+            fontHeight = metrics.getHeight();
             fontWidth = metrics.charWidth('W');
 
             System.out.println("Font height: " + fontHeight);
