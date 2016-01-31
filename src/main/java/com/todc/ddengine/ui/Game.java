@@ -111,17 +111,33 @@ public class Game {
                 case KeyEvent.VK_Q:
                     quit = true;
                     break;
-                case KeyEvent.VK_LEFT:
-                    action = new MoveAction(stage, stage.getHero(), Direction.W);
+                case KeyEvent.VK_7:
+                    action = new MoveAction(stage, stage.getHero(), Direction.NW);
                     break;
-                case KeyEvent.VK_RIGHT:
-                    action = new MoveAction(stage, stage.getHero(), Direction.E);
-                    break;
+                case KeyEvent.VK_8:
                 case KeyEvent.VK_UP:
                     action = new MoveAction(stage, stage.getHero(), Direction.N);
                     break;
+                case KeyEvent.VK_9:
+                    action = new MoveAction(stage, stage.getHero(), Direction.NE);
+                    break;
+                case KeyEvent.VK_4:
+                case KeyEvent.VK_LEFT:
+                    action = new MoveAction(stage, stage.getHero(), Direction.W);
+                    break;
+                case KeyEvent.VK_6:
+                case KeyEvent.VK_RIGHT:
+                    action = new MoveAction(stage, stage.getHero(), Direction.E);
+                    break;
+                case KeyEvent.VK_1:
+                    action = new MoveAction(stage, stage.getHero(), Direction.SW);
+                    break;
+                case KeyEvent.VK_2:
                 case KeyEvent.VK_DOWN:
                     action = new MoveAction(stage, stage.getHero(), Direction.S);
+                    break;
+                case KeyEvent.VK_3:
+                    action = new MoveAction(stage, stage.getHero(), Direction.SE);
                     break;
             }
 
