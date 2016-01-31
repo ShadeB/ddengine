@@ -10,25 +10,41 @@ public class Tile {
     // ----------------------------------------------------- Instance Variables
 
 
-    private int terrainType;
+    private String name;
+    private Glyph glyph;
+    private boolean passable;
 
 
     // --------------------------------------------------------------- Mutators
 
 
-    public int getTerrainType() {
-        return terrainType;
+    public Glyph getGlyph() {
+        return glyph;
     }
 
-    public void setTerrainType(int terrainType) {
-        this.terrainType = terrainType;
+    public void setGlyph(Glyph glyph) {
+        this.glyph = glyph;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public boolean isPassable() {
+        return passable;
+    }
+
+    public void setPassable(boolean passable) {
+        this.passable = passable;
     }
 
 
     // ----------------------------------------------------------- Constructors
 
 
-    public Tile(int terrainType) {
-        this.terrainType = terrainType;
-    }
+
 }

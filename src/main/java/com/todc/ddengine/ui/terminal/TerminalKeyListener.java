@@ -30,7 +30,7 @@ public class TerminalKeyListener implements KeyListener {
 
 
     public Integer blockingKeyPressed() throws InterruptedException {
-        return keyEvents.poll(10, TimeUnit.MILLISECONDS);
+        return keyEvents.poll(5, TimeUnit.MILLISECONDS);
     }
 
     @Override

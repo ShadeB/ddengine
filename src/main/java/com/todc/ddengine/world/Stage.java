@@ -17,7 +17,7 @@ public class Stage {
 
 
     private Tile[][] tiles;
-    private Actor hero;
+    private Hero hero;
 
     private int width = 0;
     private int height = 0;
@@ -32,11 +32,11 @@ public class Stage {
         return tiles;
     }
 
-    public Actor getHero() {
+    public Hero getHero() {
         return hero;
     }
 
-    public void setHero(Actor hero) {
+    public void setHero(Hero hero) {
         this.hero = hero;
     }
 

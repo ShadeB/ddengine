@@ -1,6 +1,11 @@
 package com.todc.ddengine.world;
 
 
+import com.todc.ddengine.data.Tiles;
+
+import java.io.IOException;
+
+
 /**
  * @author Tim O'Donnell (tim@timodonnell.com)
  */
@@ -12,11 +17,6 @@ public class StageBuilder {
 
     public static final int MAP_MAX_COLS = 1000;
     public static final int MAP_MAX_ROWS = 1000;
-
-    public static final java.util.Map<Character,Integer> terrainMapping = new java.util.HashMap<Character,Integer>() {{
-        put('#', Terrain.WALL);
-        put('.', Terrain.FLOOR);
-    }};
 
 
     public static Stage fromString(String s) {
@@ -50,8 +50,15 @@ public class StageBuilder {
 
 
     public static Tile fromChar(Character c) {
-        Integer terrainType = terrainMapping.get(c);
-        return new Tile(terrainType);
+        if (!Tiles.isLoaded()) {
+            try {
+                Tiles.load("tiles.yaml");
+            } catch (IOException ex) {
+                System.err.println("tiles.yaml not loaded!");
+            }
+        }
+
+        return Tiles.getTileByGlyph(c.toString());
     }
 
 }

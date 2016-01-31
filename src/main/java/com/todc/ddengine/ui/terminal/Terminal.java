@@ -15,9 +15,10 @@ public class Terminal extends JPanel {
 
     private Cell[][] cells;
 
-    private Font font = new Font("Menlo", Font.BOLD, 13);
+    private Font font = new Font("Menlo", Font.BOLD, 14);
     private int fontHeight = -1;
     private int fontWidth = -1;
+    private int fontAscent = -1;
 
     private int xInset = -1;
     private int yInset = -1;
@@ -74,6 +75,7 @@ public class Terminal extends JPanel {
         super.paintComponent(g);
 
         System.out.println("Painting terminal");
+        long startTime = System.currentTimeMillis();
 
         if (g instanceof Graphics2D) {
             Graphics2D g2 = (Graphics2D)g;
@@ -97,12 +99,22 @@ public class Terminal extends JPanel {
 
                     // paint the foreground
                     g2.setColor(currentCell.getForeground());
-                    g2.drawString(currentCell.getGlyph(), x, y + fontHeight);
+                    g2.drawString(currentCell.getGlyph(), x, y + fontAscent);
 
-                    currentCell.setDirty(false);
+                    /*
+                    // draw border
+                    g2.setColor(Color.RED);
+                    g2.drawLine(x, y, x+fontWidth-1, y); // top
+                    g2.drawLine(x, y, x, y+fontHeight-1); // left
+                    g2.drawLine(x, y + fontHeight-1, x+fontWidth-1, y+fontHeight-1); // bottom
+                    g2.drawLine(x+fontWidth-1, y, x+fontWidth-1, y+fontHeight-1); // right
+                    */
                 }
             }
         }
+
+        long endTime = System.currentTimeMillis();
+        System.out.println("Painted in " + (endTime-startTime) + "ms");
     }
 
     @Override
@@ -139,6 +151,7 @@ public class Terminal extends JPanel {
             FontMetrics metrics = g.getFontMetrics(this.font);
             fontHeight = metrics.getHeight();
             fontWidth = metrics.charWidth('W');
+            fontAscent = metrics.getMaxAscent();
 
             System.out.println("Font height: " + fontHeight);
             System.out.println("Font width:  " + fontWidth);

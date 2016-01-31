@@ -5,14 +5,10 @@ import com.todc.ddengine.action.Action;
 import com.todc.ddengine.action.MoveAction;
 import com.todc.ddengine.action.NoOpAction;
 import com.todc.ddengine.ui.terminal.Terminal;
-import com.todc.ddengine.world.Actor;
+import com.todc.ddengine.world.Hero;
 import com.todc.ddengine.world.Stage;
 import com.todc.ddengine.world.StageBuilder;
-import com.todc.ddengine.world.Terrain;
-import com.todc.ddengine.world.Tile;
 
-import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.event.KeyEvent;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
@@ -64,15 +60,18 @@ public class Game {
 
 
     public static void main(String... args) throws Exception {
-        Actor hero = new Actor();
+        Hero hero = new Hero();
 
         Stage stage = StageBuilder.fromString(
-                "##########\n" +
-                "#........#\n" +
-                "#........#\n" +
-                "#........#\n" +
-                "#........#\n" +
-                "##########\n"
+                "##################\n" +
+                "#................#\n" +
+                "#................#\n" +
+                "#................#\n" +
+                "#................#\n" +
+                "#................#\n" +
+                "#................#\n" +
+                "#................#\n" +
+                "##################\n"
         );
         stage.setHero(hero);
 

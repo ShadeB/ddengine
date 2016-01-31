@@ -1,0 +1,16 @@
+group: arachnids
+  glyph: 'a'
+  - name: garden spider
+    fgcolor: 008080
+    bgcolor: 000000
+    actions: []
+    drops: []
+    flags: []
+    speed:
+    wander:
+  - name: brown spider
+    fgcolor: a06e3c
+    bgcolor: 000000
+  - name: giant spider
+    fgcolor: 0025a8
+    bgcolor: 000000

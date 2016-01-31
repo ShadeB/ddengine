@@ -1,0 +1,12 @@
+- name: Floor
+  glyph: '.'
+  foreground: '#ffffff'
+  background: '#000000'
+  visible: true
+  passable: true
+- name: Wall
+  glyph: '#'
+  foreground: '#ffffff'
+  background: '#000000'
+  visible: true
+  passable: false

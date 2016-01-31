@@ -5,7 +5,6 @@ import com.todc.ddengine.world.Actor;
 import com.todc.ddengine.util.Coordinate;
 import com.todc.ddengine.util.Direction;
 import com.todc.ddengine.world.Stage;
-import com.todc.ddengine.world.Terrain;
 import com.todc.ddengine.world.Tile;
 
 
@@ -84,7 +83,7 @@ public class MoveAction implements Action {
 
         Tile destTile = stage.getTileAt(destination.x, destination.y);
 
-        if (destTile.getTerrainType() == Terrain.WALL) {
+        if (!destTile.isPassable()) {
             System.out.println("Ran into a wall at " + destination.toString());
             return;
         }
