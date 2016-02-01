@@ -23,31 +23,43 @@ public class Terminal extends JPanel {
     private int xInset = -1;
     private int yInset = -1;
 
+    private int numRows;
+    private int numCols;
+
     private TerminalKeyListener keyListener = new TerminalKeyListener();;
+
+
+    // --------------------------------------------------------------- Mutators
+
+
+    public int getNumCols() {
+        return numCols;
+    }
+
+    public void setNumCols(int numCols) {
+        this.numCols = numCols;
+    }
+
+    public int getNumRows() {
+        return numRows;
+    }
+
+    public void setNumRows(int numRows) {
+        this.numRows = numRows;
+    }
 
 
     // ----------------------------------------------------------- Constructors
 
 
-    public Terminal(Cell[][] cells) {
+    public Terminal(int cols, int rows) {
         super();
         init();
 
-        this.cells = cells;
-    }
+        this.numCols = cols;
+        this.numRows = rows;
 
-    public Terminal(int width, int height) {
-        super();
-        init();
-
-        Cell[][] cells = new Cell[height][width];
-        for (int y=0; y<cells.length; y++) {
-            for (int x=0; x<cells[y].length; x++) {
-                cells[y][x] = Cell.EMPTY_CELL;
-            }
-        }
-
-        this.cells = cells;
+        fillWith(Cell.EMPTY_CELL);
     }
 
 
@@ -68,6 +80,15 @@ public class Terminal extends JPanel {
 
     public Cell getCell(int x, int y) {
         return this.cells[y][x];
+    }
+
+    public void fillWith(Cell cell) {
+        cells = new Cell[numRows][numCols];
+        for (int y=0; y<cells.length; y++) {
+            for (int x=0; x<cells[y].length; x++) {
+                cells[y][x] = cell;
+            }
+        }
     }
 
     @Override
