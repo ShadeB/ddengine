@@ -19,6 +19,7 @@ public class Direction {
     public static final Direction W  = new Direction(-1,  0);
     public static final Direction NW = new Direction(-1, -1);
 
+    public static final Direction[] CARDINAL = new Direction[] { N, E, S, W };
 
     // ----------------------------------------------------- Instance Variables
 

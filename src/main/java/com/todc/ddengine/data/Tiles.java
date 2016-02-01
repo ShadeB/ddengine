@@ -19,6 +19,10 @@ import java.util.Map;
 public class Tiles {
 
 
+    public static final String WALL_NAME  = "Wall";
+    public static final String FLOOR_NAME = "Floor";
+
+
     private static Map<String,Tile> tiles = new HashMap<>();
 
 
@@ -56,6 +60,19 @@ public class Tiles {
         for (Map.Entry<String,Tile> tileEntry : tiles.entrySet()) {
             Tile tile = tileEntry.getValue();
             if (tile.getGlyph().getCharacter().equals(glyph)) {
+                return tile;
+            }
+        }
+
+        return null;
+    }
+
+    public static Tile getTileByName(String name) {
+        if (!Tiles.isLoaded()) return null;
+
+        for (Map.Entry<String,Tile> tileEntry : tiles.entrySet()) {
+            Tile tile = tileEntry.getValue();
+            if (tile.getName().equalsIgnoreCase(name)) {
                 return tile;
             }
         }
