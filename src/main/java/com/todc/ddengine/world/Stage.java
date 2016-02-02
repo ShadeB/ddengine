@@ -68,8 +68,20 @@ public class Stage {
     // --------------------------------------------------------- Public Methods
 
 
+    public Tile getTileAt(Coordinate pos) {
+        return this.tiles[pos.y][pos.x];
+    }
+
     public Tile getTileAt(int x, int y) {
         return this.tiles[y][x];
+    }
+
+    public void setTileAt(int x, int y, Tile tile) {
+        this.tiles[y][x] = tile;
+    }
+
+    public void setTileAt(Coordinate pos, Tile tile) {
+        this.tiles[pos.y][pos.x] = tile;
     }
 
     public void moveActor(Actor actor, Coordinate newPosition) {
@@ -79,6 +91,22 @@ public class Stage {
         actor.setPosition(newPosition);
 
         notifyListeners(actor, oldPosition, newPosition);
+    }
+
+    public Coordinate findEmptyTile() {
+        for (int y=0; y<this.tiles.length; y++) {
+            for (int x=0; x<this.tiles[y].length; x++) {
+                if (this.tiles[y][x].isPassable()) {
+                    return new Coordinate(x, y);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public void setDirty() {
+        notifyListeners(null, null, null);
     }
 
     public void addChangeListener(StageListener listener) {

@@ -1,5 +1,6 @@
 package com.todc.ddengine.ui;
 
+import com.todc.ddengine.action.ActionResult;
 import com.todc.ddengine.util.Direction;
 import com.todc.ddengine.action.Action;
 import com.todc.ddengine.action.MoveAction;
@@ -7,7 +8,8 @@ import com.todc.ddengine.action.NoOpAction;
 import com.todc.ddengine.ui.terminal.Terminal;
 import com.todc.ddengine.world.Hero;
 import com.todc.ddengine.world.Stage;
-import com.todc.ddengine.world.StageBuilder;
+import com.todc.ddengine.world.Tile;
+import com.todc.ddengine.world.dungeon.DungeonGenerator;
 
 import java.awt.event.KeyEvent;
 import javax.swing.JFrame;
@@ -55,30 +57,12 @@ public class Game {
 public class Game {
 
     public static void main(String... args) throws Exception {
-        Hero hero = new Hero();
+        DungeonGenerator generator = new DungeonGenerator();
+        Tile[][] tiles = generator.generate(35, 35);
+        Stage stage = new Stage(tiles);
 
-        Stage stage = StageBuilder.fromString(
-            "####################################################\n" +
-            "#................##################................#\n" +
-            "#................##################................#\n" +
-            "#................##################................#\n" +
-            "#..................................................#\n" +
-            "#................##################................#\n" +
-            "#................##################................#\n" +
-            "#................##################................#\n" +
-            "###########################################.########\n" +
-            "###########################################.########\n" +
-            "###########################################.########\n" +
-            "###########################################.########\n" +
-            "######################################.............#\n" +
-            "######################################.............#\n" +
-            "######################################.............#\n" +
-            "######################################.............#\n" +
-            "######################################.............#\n" +
-            "######################################.............#\n" +
-            "######################################.............#\n" +
-            "####################################################\n"
-        );
+        Hero hero = new Hero();
+        hero.setPosition(stage.findEmptyTile());
         stage.setHero(hero);
 
         Terminal terminal = new Terminal(20, 10);
@@ -148,7 +132,11 @@ public class Game {
                     break;
             }
 
-            action.perform();
+            ActionResult result = action.perform();
+            while (result.hasAlternate()) {
+                action = result.getAlternate();
+                result = action.perform();
+            }
         }
     }
 

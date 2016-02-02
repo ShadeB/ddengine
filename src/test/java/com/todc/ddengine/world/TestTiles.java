@@ -32,17 +32,18 @@ public class TestTiles {
 
     @Test
     public void testGetTileByName() {
-        InputStream is = this.getClass().getClassLoader().getResourceAsStream("tiles.yaml");
         try {
+            InputStream is = this.getClass().getClassLoader().getResourceAsStream("tiles.yaml");
             Tiles.load(is);
-            Tile tile = Tiles.getTileByName(Tiles.FLOOR_NAME);
-            assertEquals("Floor", tile.getName());
-            assertEquals(".", tile.getGlyph().getCharacter());
-            assertEquals(Color.WHITE, tile.getGlyph().getForeground());
-            assertEquals(Color.BLACK, tile.getGlyph().getBackground());
         } catch (IOException ex) {
             fail("Unexpected IOException: " + ex.getMessage());
         }
+
+        Tile tile = Tiles.getTileByName(Tiles.FLOOR_NAME);
+        assertEquals("Floor", tile.getName());
+        assertEquals(".", tile.getGlyph().getCharacter());
+        assertEquals(Color.WHITE, tile.getGlyph().getForeground());
+        assertEquals(Color.BLACK, tile.getGlyph().getBackground());
     }
 
 }

@@ -21,8 +21,8 @@ public class Tiles {
 
     public static final String WALL_NAME  = "Wall";
     public static final String FLOOR_NAME = "Floor";
-    public static final String OPEN_DOOR_NAME = "Open Door";
-    public static final String CLOSED_DOOR_NAME = "Closed Door";
+    public static final String OPEN_DOOR_NAME = "OpenedDoor";
+    public static final String CLOSED_DOOR_NAME = "ClosedDoor";
 
 
     private static Map<String,Tile> tiles = new HashMap<>();
@@ -52,8 +52,25 @@ public class Tiles {
                 Colors.fromHex((String)def.get("background"))
             ));
 
+            if (def.get("opensTo") != null) {
+                Tile opensToTile = Tiles.getTileByName((String)def.get("opensTo"));
+                if (opensToTile != null) {
+                    tile.setOpensTo(opensToTile);
+                }
+            }
+            if (def.get("closesTo") != null) {
+                Tile closesToTile = Tiles.getTileByName((String)def.get("closesTo"));
+                if (closesToTile != null) {
+                    tile.setClosesTo(closesToTile);
+                }
+            }
+
             tiles.put(name, tile);
         }
+    }
+
+    public static String[] getTileNames() {
+        return tiles.keySet().toArray(new String[tiles.size()]);
     }
 
     public static Tile getTileByGlyph(String glyph) {

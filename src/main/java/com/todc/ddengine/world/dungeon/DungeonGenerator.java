@@ -1,13 +1,11 @@
 package com.todc.ddengine.world.dungeon;
 
 
-import com.sun.javaws.exceptions.InvalidArgumentException;
 import com.todc.ddengine.data.Tiles;
 import com.todc.ddengine.util.Coordinate;
 import com.todc.ddengine.util.Direction;
 import com.todc.ddengine.util.RNG;
 import com.todc.ddengine.util.Rect;
-import com.todc.ddengine.world.Stage;
 import com.todc.ddengine.world.Tile;
 
 import java.util.*;
@@ -87,7 +85,7 @@ public class DungeonGenerator {
 
     public Tile[][] generate(int width, int height) {
         if (width % 2 == 0 || height % 2 == 0) {
-            throw new IllegalArgumentException("The stage must be odd-sized.");
+            throw new IllegalArgumentException("The width and height of the dungeon must be odd numbers.");
         }
 
         this.width = width;
@@ -117,6 +115,9 @@ public class DungeonGenerator {
 
         _connectRegions();
         _removeDeadEnds();
+
+        System.out.println("\n---------- FINISHED ----------");
+        printDungeon(tiles);
 
         return tiles;
     }
@@ -386,10 +387,7 @@ public class DungeonGenerator {
 
     public static void main(String... args) throws Exception {
         DungeonGenerator generator = new DungeonGenerator();
-        Tile[][] tiles = generator.generate(35, 35);
-
-        System.out.println("\n---------- FINISHED ----------");
-        printDungeon(tiles);
+        Tile[][] tiles = generator.generate(135, 65);
     }
 
 

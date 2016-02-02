@@ -11,7 +11,7 @@ import com.todc.ddengine.world.Tile;
 /**
  * @author Tim O'Donnell (tim@timodonnell.com)
  */
-public class MoveAction implements Action {
+public class MoveAction extends Action {
 
 
     // ----------------------------------------------------- Instance Variables
@@ -56,38 +56,26 @@ public class MoveAction implements Action {
 
 
     @Override
-    public void perform() {
+    public ActionResult perform() {
         Coordinate currentPosition = this.actor.getPosition();
         Coordinate destination = new Coordinate(
             currentPosition.x + this.direction.x,
             currentPosition.y + this.direction.y
         );
 
-        // can actor move to the destination?
-        if (destination.x > stage.getWidth()) {
-            System.out.println("Can't move outside bounds of stage (max width=" + stage.getWidth() + ", requested = " + destination.x + ")");
-            return;
-        }
-        if (destination.x < 0) {
-            System.out.println("Can't move outside bounds of stage (requested x = " + destination.x + ")");
-            return;
-        }
-        if (destination.y > stage.getHeight()) {
-            System.out.println("Can't move outside bounds of stage (max height=" + stage.getHeight() + ", requested = " + destination.y + ")");
-            return;
-        }
-        if (destination.y < 0) {
-            System.out.println("Can't move outside bounds of stage (requested y = " + destination.y + ")");
-            return;
-        }
-
         Tile destTile = stage.getTileAt(destination.x, destination.y);
+
+        if (destTile.opensTo() != null) {
+            return alternate(new OpenDoorAction(stage, destination));
+        }
 
         if (!destTile.isPassable()) {
             System.out.println("Ran into a wall at " + destination.toString());
-            return;
+            return FAILURE;
         }
 
         stage.moveActor(actor, destination);
+
+        return SUCCESS;
     }
 }

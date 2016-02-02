@@ -13,6 +13,8 @@ public class Tile {
     private String name;
     private Glyph glyph;
     private boolean passable;
+    private Tile opensTo;
+    private Tile closesTo;
 
 
     // --------------------------------------------------------------- Mutators
@@ -40,6 +42,22 @@ public class Tile {
 
     public void setPassable(boolean passable) {
         this.passable = passable;
+    }
+
+    public Tile closesTo() {
+        return closesTo;
+    }
+
+    public void setClosesTo(Tile closesTo) {
+        this.closesTo = closesTo;
+    }
+
+    public Tile opensTo() {
+        return opensTo;
+    }
+
+    public void setOpensTo(Tile opensTo) {
+        this.opensTo = opensTo;
     }
 
 
