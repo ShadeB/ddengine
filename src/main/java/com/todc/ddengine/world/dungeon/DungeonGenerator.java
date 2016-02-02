@@ -1,6 +1,7 @@
 package com.todc.ddengine.world.dungeon;
 
 
+import com.sun.javaws.exceptions.InvalidArgumentException;
 import com.todc.ddengine.data.Tiles;
 import com.todc.ddengine.util.Coordinate;
 import com.todc.ddengine.util.Direction;
@@ -10,6 +11,7 @@ import com.todc.ddengine.world.Stage;
 import com.todc.ddengine.world.Tile;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -41,8 +43,6 @@ import java.util.*;
 /// of winding corridors.
 public class DungeonGenerator {
 
-    private int numRoomTries = 60;
-
     {
         if (!Tiles.isLoaded()) {
             try {
@@ -55,6 +55,9 @@ public class DungeonGenerator {
     private Tile FLOOR_TILE = Tiles.getTileByName(Tiles.FLOOR_NAME);
     private Tile OPEN_DOOR_TILE = Tiles.getTileByName(Tiles.OPEN_DOOR_NAME);
     private Tile CLOSED_DOOR_TILE = Tiles.getTileByName(Tiles.CLOSED_DOOR_NAME);
+
+
+    private int numRoomTries = 30;
 
     /// The inverse chance of adding a connector between two regions that have
     /// already been joined. Increasing this leads to more redundantly connected
@@ -83,9 +86,9 @@ public class DungeonGenerator {
     private RNG rng = new RNG();
 
     public Tile[][] generate(int width, int height) {
-        //if (stage.width % 2 == 0 || stage.height % 2 == 0) {
-        //    throw new ArgumentError("The stage must be odd-sized.");
-        //}
+        if (width % 2 == 0 || height % 2 == 0) {
+            throw new IllegalArgumentException("The stage must be odd-sized.");
+        }
 
         this.width = width;
         this.height = height;
@@ -95,12 +98,13 @@ public class DungeonGenerator {
 
         fill(WALL_TILE);
 
+        System.out.println("\n---------- ADDING ROOMS ----------");
         _addRooms();
 
         printDungeon(this.tiles);
 
         // Fill in all of the empty space with mazes.
-        System.out.println("*** ADDING MAZES ***");
+        System.out.println("\n---------- ADDING MAZES ----------");
         for (int y=1; y<height; y+=2) {
             for (int x=1; x<width; x+=2) {
                 Coordinate pos = new Coordinate(x, y);
@@ -108,6 +112,8 @@ public class DungeonGenerator {
                 _growMaze(pos);
             }
         }
+
+        printDungeon(this.tiles);
 
         _connectRegions();
         _removeDeadEnds();
@@ -268,10 +274,10 @@ public class DungeonGenerator {
 
             // Merge the connected regions. We'll pick one region (arbitrarily) and
             // map all of the other regions to its index.
-            Integer[] regions = (Integer[])connectorRegions.get(connector).stream().map(region -> merged[region]).toArray();
-            int dest = regions[0];
+            List<Integer> regions = connectorRegions.get(connector).stream().map(region -> merged[region]).collect(Collectors.toList());
+            int dest = regions.get(0);
 
-            List<Integer> sources = Arrays.asList(regions);
+            List<Integer> sources = new ArrayList<>(regions);
             sources.remove(0);
 
             // Merge all of the affected regions. We have to look at *all* of the
@@ -292,9 +298,10 @@ public class DungeonGenerator {
                 if (connector.sub(pos).lengthSquared() < 2) return true;
 
                 // If the connector no longer spans different regions, we don't need it.
-                Integer[] mergedRegions = (Integer[])connectorRegions.get(pos).stream().map(region -> merged[region]).toArray();
+                //Integer[] mergedRegions = (Integer[])connectorRegions.get(pos).stream().map(region -> merged[region]).toArray();
+                List<Integer> mergedRegions = connectorRegions.get(pos).stream().map(region -> merged[region]).collect(Collectors.toList());
 
-                if (mergedRegions.length > 1) return false;
+                if (mergedRegions.size() > 1) return false;
 
                 // This connecter isn't needed, but connect it occasionally so that the
                 // dungeon isn't singly-connected.
@@ -379,7 +386,9 @@ public class DungeonGenerator {
 
     public static void main(String... args) throws Exception {
         DungeonGenerator generator = new DungeonGenerator();
-        Tile[][] tiles = generator.generate(120, 20);
+        Tile[][] tiles = generator.generate(35, 35);
+
+        System.out.println("\n---------- FINISHED ----------");
         printDungeon(tiles);
     }
 
