@@ -21,6 +21,8 @@ public class Tiles {
 
     public static final String WALL_NAME  = "Wall";
     public static final String FLOOR_NAME = "Floor";
+    public static final String OPEN_DOOR_NAME = "Open Door";
+    public static final String CLOSED_DOOR_NAME = "Closed Door";
 
 
     private static Map<String,Tile> tiles = new HashMap<>();

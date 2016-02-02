@@ -4,14 +4,12 @@ package com.todc.ddengine.world.dungeon;
 import com.todc.ddengine.data.Tiles;
 import com.todc.ddengine.util.Coordinate;
 import com.todc.ddengine.util.Direction;
+import com.todc.ddengine.util.RNG;
+import com.todc.ddengine.util.Rect;
 import com.todc.ddengine.world.Stage;
 import com.todc.ddengine.world.Tile;
 
-import java.awt.Rectangle;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.Stack;
+import java.util.*;
 
 
 /**
@@ -45,8 +43,18 @@ public class DungeonGenerator {
 
     private int numRoomTries = 60;
 
+    {
+        if (!Tiles.isLoaded()) {
+            try {
+                Tiles.load("tiles.yaml");
+            } catch (Exception ex) {}
+        }
+    }
+
     private Tile WALL_TILE = Tiles.getTileByName(Tiles.WALL_NAME);
     private Tile FLOOR_TILE = Tiles.getTileByName(Tiles.FLOOR_NAME);
+    private Tile OPEN_DOOR_TILE = Tiles.getTileByName(Tiles.OPEN_DOOR_NAME);
+    private Tile CLOSED_DOOR_TILE = Tiles.getTileByName(Tiles.CLOSED_DOOR_NAME);
 
     /// The inverse chance of adding a connector between two regions that have
     /// already been joined. Increasing this leads to more redundantly connected
@@ -58,11 +66,11 @@ public class DungeonGenerator {
 
     private int windingPercent = 0;
 
-    private List<Rectangle> _rooms = new ArrayList<>();
+    private List<Rect> _rooms = new ArrayList<>();
 
     /// For each open position in the dungeon, the index of the connected region
     /// that that position is a part of.
-    private int[][] _regions;
+    private Map<Coordinate,Integer> _regions = new HashMap<>();
 
     /// The index of the current region being carved.
     private int _currentRegion = -1;
@@ -70,8 +78,9 @@ public class DungeonGenerator {
     private Tile[][] tiles;
     private int width;
     private int height;
+    private Rect bounds;
 
-    private Random rng = new Random();
+    private RNG rng = new RNG();
 
     public Tile[][] generate(int width, int height) {
         //if (stage.width % 2 == 0 || stage.height % 2 == 0) {
@@ -80,16 +89,18 @@ public class DungeonGenerator {
 
         this.width = width;
         this.height = height;
+        this.bounds = new Rect(0, 0, width, height);
 
         tiles = new Tile[height][width];
 
         fill(WALL_TILE);
 
-        _regions = new int[height][width];
-
         _addRooms();
 
+        printDungeon(this.tiles);
+
         // Fill in all of the empty space with mazes.
+        System.out.println("*** ADDING MAZES ***");
         for (int y=1; y<height; y+=2) {
             for (int x=1; x<width; x+=2) {
                 Coordinate pos = new Coordinate(x, y);
@@ -101,7 +112,7 @@ public class DungeonGenerator {
         _connectRegions();
         _removeDeadEnds();
 
-        _rooms.forEach(::onDecorateRoom);
+        return tiles;
     }
 
     private void fill(Tile fillTile) {
@@ -116,32 +127,8 @@ public class DungeonGenerator {
         return tiles[coord.y][coord.x];
     }
 
-    /// Returns the distance between [first] Rect and [second]. This is minimum
-    /// length that a corridor would have to be to go from one Rect to the other.
-    /// If the two Rects are adjacent, returns zero. If they overlap, returns -1.
-    private int distanceBetween(Rectangle first, Rectangle second) {
-        int vertical;
-        if (first.y >= (int)second.getMaxY()) {
-            vertical = first.y - (int)second.getMaxY();
-        } else if ((int)first.getMaxY() <= second.y) {
-            vertical = second.y - (int)first.getMaxY();
-        } else {
-            vertical = -1;
-        }
-
-        int horizontal;
-        if (first.x >= (int)second.getMaxX()) {
-            horizontal = first.x - (int)second.getMaxX();
-        } else if ((int)first.getMaxX() <= second.x) {
-            horizontal = second.x - (int)first.getMaxX();
-        } else {
-            horizontal = -1;
-        }
-
-        if ((vertical == -1) && (horizontal == -1)) return -1;
-        if (vertical == -1) return horizontal;
-        if (horizontal == -1) return vertical;
-        return horizontal + vertical;
+    private void setTile(Coordinate coord, Tile tile) {
+        tiles[coord.y][coord.x] = tile;
     }
 
     /// Implementation of the "growing tree" algorithm from here:
@@ -149,7 +136,7 @@ public class DungeonGenerator {
     void _growMaze(Coordinate start) {
         //List<Coordinate> cells = new ArrayList<Coordinate>();
         Stack<Coordinate> cells = new Stack<>();
-        Direction lastDir;
+        Direction lastDir = null;
 
         _startRegion();
         _carve(start);
@@ -167,20 +154,20 @@ public class DungeonGenerator {
                 }
             }
 
-            if (unmadeCells.isNotEmpty) {
+            if (!unmadeCells.isEmpty()) {
                 // Based on how "windy" passages are, try to prefer carving in the
                 // same direction.
-                var dir;
-                if (unmadeCells.contains(lastDir) && rng.range(100) > windingPercent) {
+                Direction dir;
+                if (unmadeCells.contains(lastDir) && rng.nextInt(100) > windingPercent) {
                     dir = lastDir;
                 } else {
-                    dir = rng.item(unmadeCells);
+                    dir = (Direction)rng.item(unmadeCells);
                 }
 
-                _carve(cell + dir);
-                _carve(cell + dir * 2);
+                _carve(cell.add(dir));
+                _carve(new Coordinate(cell.x+dir.x*2, cell.y+dir.y*2));
 
-                cells.add(cell + dir * 2);
+                cells.add(new Coordinate(cell.x+dir.x*2, cell.y+dir.y*2));
                 lastDir = dir;
             } else {
                 // No adjacent uncarved cells.
@@ -204,7 +191,7 @@ public class DungeonGenerator {
             int rectangularity = rng.nextInt(1 + size / 2) * 2;
             int width = size;
             int height = size;
-            if (rng.nextInt(2) > 0) {
+            if (rng.oneIn(2)) {
                 width += rectangularity;
             } else {
                 height += rectangularity;
@@ -213,76 +200,84 @@ public class DungeonGenerator {
             int x = rng.nextInt((this.width - width) / 2) * 2 + 1;
             int y = rng.nextInt((this.height - height) / 2) * 2 + 1;
 
-            Rectangle room = new Rectangle(x, y, width, height);
+            Rect room = new Rect(x, y, width, height);
+            //System.out.println("#" + i + ") Trying room: x=" + room.x + ", y=" + room.y + ", w=" + room.width + ", h=" + room.height);
 
             boolean overlaps = false;
-            for (Rectangle other : _rooms) {
-                if (distanceBetween(room, other) <= 0) {
+            for (Rect other : _rooms) {
+                if (room.distanceTo(other) <= 0) {
                     overlaps = true;
                     break;
                 }
             }
 
-            if (overlaps) continue;
+            if (overlaps) {
+                //System.out.println("  Overlaps another room. Abandoning.");
+                continue;
+            }
 
             _rooms.add(room);
 
+            //System.out.println("  Carving room...");
             _startRegion();
-            for (int row=room.y; row<=room.height; row++) {
-                for (int col=room.x; col<=room.width; col++) {
-                    _carve(new Coordinate(col, row));
-                }
-            }
+            List<Coordinate> coords = getCoordinatesInRect(room);
+            coords.forEach(this::_carve);
         }
     }
 
     void _connectRegions() {
         // Find all of the tiles that can connect two (or more) regions.
-        var connectorRegions = <Vec, Set<int>>{};
-        for (var pos in bounds.inflate(-1)) {
-            // Can't already be part of a region.
-            if (getTile(pos) != Tiles.wall) continue;
+        Map<Coordinate,Set<Integer>> connectorRegions = new HashMap<>();
 
-            var regions = new Set<int>();
-            for (var dir in Direction.CARDINAL) {
-                var region = _regions[pos + dir];
-                if (region != null) regions.add(region);
+        List<Coordinate> coordsInRect = getCoordinatesInRect(bounds.inflate(-1));
+        for (Coordinate pos : coordsInRect) {
+            // Can't already be part of a region.
+            if (getTile(pos) != WALL_TILE) continue;
+
+            Set<Integer> regions = new HashSet<>();
+            for (Direction dir : Direction.CARDINAL) {
+                Integer region = _regions.get(pos.add(dir));
+                if (region != null) {
+                    regions.add(region);
+                }
             }
 
-            if (regions.length < 2) continue;
+            if (regions.size() < 2) continue;
 
-            connectorRegions[pos] = regions;
+            connectorRegions.put(pos, regions);
         }
 
-        var connectors = connectorRegions.keys.toList();
+        Set<Coordinate> connectorsSet = connectorRegions.keySet();
+        List<Coordinate> connectors = new ArrayList<>(connectorsSet);
 
         // Keep track of which regions have been merged. This maps an original
         // region index to the one it has been merged to.
-        var merged = {};
-        var openRegions = new Set<int>();
-        for (var i = 0; i <= _currentRegion; i++) {
+        int[] merged = new int[_currentRegion+1];
+        List<Integer> openRegions = new ArrayList<>();
+        for (int i=0; i<=_currentRegion; i++) {
             merged[i] = i;
             openRegions.add(i);
         }
 
         // Keep connecting regions until we're down to one.
-        while (openRegions.length > 1) {
-            var connector = rng.item(connectors);
+        while (openRegions.size() > 1) {
+            Coordinate connector = (Coordinate)rng.item(connectors);
 
             // Carve the connection.
             _addJunction(connector);
 
             // Merge the connected regions. We'll pick one region (arbitrarily) and
             // map all of the other regions to its index.
-            var regions = connectorRegions[connector]
-                    .map((region) => merged[region]);
-            var dest = regions.first;
-            var sources = regions.skip(1).toList();
+            Integer[] regions = (Integer[])connectorRegions.get(connector).stream().map(region -> merged[region]).toArray();
+            int dest = regions[0];
+
+            List<Integer> sources = Arrays.asList(regions);
+            sources.remove(0);
 
             // Merge all of the affected regions. We have to look at *all* of the
             // regions because other regions may have previously been merged with
             // some of the ones we're merging now.
-            for (var i = 0; i <= _currentRegion; i++) {
+            for (int i=0; i<=_currentRegion; i++) {
                 if (sources.contains(merged[i])) {
                     merged[i] = dest;
                 }
@@ -292,54 +287,68 @@ public class DungeonGenerator {
             openRegions.removeAll(sources);
 
             // Remove any connectors that aren't needed anymore.
-            connectors.removeWhere((pos) {
-                    // Don't allow connectors right next to each other.
-            if (connector - pos < 2) return true;
+            connectors.removeIf(pos -> {
+                // Don't allow connectors right next to each other.
+                if (connector.sub(pos).lengthSquared() < 2) return true;
 
-            // If the connector no long spans different regions, we don't need it.
-            var regions = connectorRegions[pos].map((region) => merged[region])
-            .toSet();
+                // If the connector no longer spans different regions, we don't need it.
+                Integer[] mergedRegions = (Integer[])connectorRegions.get(pos).stream().map(region -> merged[region]).toArray();
 
-            if (regions.length > 1) return false;
+                if (mergedRegions.length > 1) return false;
 
-            // This connecter isn't needed, but connect it occasionally so that the
-            // dungeon isn't singly-connected.
-            if (rng.oneIn(extraConnectorChance)) _addJunction(pos);
+                // This connecter isn't needed, but connect it occasionally so that the
+                // dungeon isn't singly-connected.
+                if (rng.oneIn(extraConnectorChance)) _addJunction(pos);
 
-            return true;
+                return true;
             });
         }
     }
 
-    void _addJunction(Vec pos) {
+    void _addJunction(Coordinate pos) {
         if (rng.oneIn(4)) {
-            setTile(pos, rng.oneIn(3) ? Tiles.openDoor : Tiles.floor);
+            this.tiles[pos.y][pos.x] = (rng.oneIn(3)) ? OPEN_DOOR_TILE : FLOOR_TILE;
         } else {
-            setTile(pos, Tiles.closedDoor);
+            this.tiles[pos.y][pos.x] = CLOSED_DOOR_TILE;
         }
     }
 
     void _removeDeadEnds() {
-        var done = false;
+        boolean done = false;
 
         while (!done) {
             done = true;
 
-            for (var pos in bounds.inflate(-1)) {
-                if (getTile(pos) == Tiles.wall) continue;
+            Rect shrunkBounds = bounds.inflate(-1);
+            List<Coordinate> coords = getCoordinatesInRect(shrunkBounds);
+
+            for (Coordinate pos : coords) {
+                if (getTile(pos) == WALL_TILE) continue;
 
                 // If it only has one exit, it's a dead end.
-                var exits = 0;
-                for (var dir in Direction.CARDINAL) {
-                    if (getTile(pos + dir) != Tiles.wall) exits++;
+                int exits = 0;
+                for (Direction dir : Direction.CARDINAL) {
+                    if (getTile(pos.add(dir)) != WALL_TILE) exits++;
                 }
 
                 if (exits != 1) continue;
 
                 done = false;
-                setTile(pos, Tiles.wall);
+                setTile(pos, WALL_TILE);
             }
         }
+    }
+
+    private List<Coordinate> getCoordinatesInRect(Rect rect) {
+        List<Coordinate> coords = new ArrayList<>();
+
+        for (int row=rect.y; row<rect.bottom; row++) {
+            for (int col=rect.x; col<rect.right; col++) {
+                coords.add(new Coordinate(col, row));
+            }
+        }
+
+        return coords;
     }
 
     /// Gets whether or not an opening can be carved from the given starting
@@ -348,18 +357,42 @@ public class DungeonGenerator {
     /// (or out of bounds).</returns>
     private boolean _canCarve(Coordinate pos, Direction direction) {
         // Must end in bounds.
-        if (!bounds.contains(pos + direction * 3)) return false;
+        if (!bounds.contains(pos.x+direction.x*3, pos.y+direction.y*3)) return false;
 
         // Destination must not be open.
-        return getTile(pos + direction * 2) == Tiles.wall;
+        return getTile(new Coordinate(pos.x+direction.x*2, pos.y+direction.y*2)) == WALL_TILE;
     }
 
-    void _startRegion() {
+    private void _startRegion() {
         _currentRegion++;
     }
 
-    void _carve(Coordinate pos) {
+    private void _carve(Coordinate pos) {
         this.tiles[pos.y][pos.x] = FLOOR_TILE;
-        _regions[pos.y][pos.x] = _currentRegion;
+        _regions.put(pos, _currentRegion);
+
+        //System.out.println("\nSetting " + pos + " = FLOOR");
+        //System.out.println("*************");
+        //printDungeon(this.tiles);
+    }
+
+
+    public static void main(String... args) throws Exception {
+        DungeonGenerator generator = new DungeonGenerator();
+        Tile[][] tiles = generator.generate(120, 20);
+        printDungeon(tiles);
+    }
+
+
+    private static void printDungeon(Tile[][] tiles) {
+        for (int y=0; y<tiles.length; y++) {
+            for (int x=0; x<tiles[y].length; x++) {
+                String c = tiles[y][x] == null ? " " : tiles[y][x].getGlyph().getCharacter();
+                System.out.print(c);
+                if (x+1 >= tiles[y].length) {
+                    System.out.print("\n");
+                }
+            }
+        }
     }
 }

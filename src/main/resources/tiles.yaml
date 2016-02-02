@@ -10,3 +10,15 @@
   background: '#000000'
   visible: true
   passable: false
+- name: Open Door
+  glyph: "'"
+  foreground: '#ffffff'
+  background: '#000000'
+  visible: true
+  passable: true
+- name: Closed Door
+  glyph: '+'
+  foreground: '#ffffff'
+  background: '#000000'
+  visible: true
+  passable: false
