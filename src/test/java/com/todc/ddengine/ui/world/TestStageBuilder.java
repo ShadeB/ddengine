@@ -17,13 +17,8 @@ import static org.junit.Assert.*;
  */
 public class TestStageBuilder {
 
-    private static final String WALL = "Wall";
-    private static final String FLOOR = "Floor";
-
-    @Before
-    public void doBefore() throws IOException {
-        Tiles.load(this.getClass().getClassLoader().getResourceAsStream("tiles.yaml"));
-    }
+    private static final String WALL = Tiles.WALL_TILE.getName();
+    private static final String FLOOR = Tiles.FLOOR_TILE.getName();
 
     @Test
     public void testFromStringValid() {

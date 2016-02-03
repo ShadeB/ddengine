@@ -54,4 +54,10 @@ public class Glyph {
         this.foreground = fg;
         this.background = bg;
     }
+
+    public Glyph(String character, String fgHex, String bgHex) {
+        this.character = character;
+        this.foreground = Color.decode(fgHex);
+        this.background = Color.decode(bgHex);
+    }
 }

@@ -4,6 +4,10 @@ package com.todc.ddengine.world;
 import com.todc.ddengine.data.Tiles;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.todc.ddengine.data.Tiles.*;
 
 
 /**
@@ -17,6 +21,14 @@ public class StageBuilder {
 
     public static final int MAP_MAX_COLS = 1000;
     public static final int MAP_MAX_ROWS = 1000;
+
+
+    private static Map<String, Tile> tiles = new HashMap<String,Tile>() {{
+        put(WALL_TILE.getGlyph().getCharacter(),        WALL_TILE);
+        put(FLOOR_TILE.getGlyph().getCharacter(),       FLOOR_TILE);
+        put(OPENED_DOOR_TILE.getGlyph().getCharacter(), OPENED_DOOR_TILE);
+        put(CLOSED_DOOR_TILE.getGlyph().getCharacter(), CLOSED_DOOR_TILE);
+    }};
 
 
     public static Stage fromString(String s) {
@@ -41,7 +53,7 @@ public class StageBuilder {
         for (int r=0; r<rows.length; r++) {
             for (int c=0; c<rows[r].length(); c++) {
                 Character tileChar = rows[r].charAt(c);
-                tiles[r][c] = fromChar(tileChar);
+                tiles[r][c] = fromChar(tileChar.toString());
             }
         }
 
@@ -49,16 +61,8 @@ public class StageBuilder {
     }
 
 
-    public static Tile fromChar(Character c) {
-        if (!Tiles.isLoaded()) {
-            try {
-                Tiles.load("tiles.yaml");
-            } catch (IOException ex) {
-                System.err.println("tiles.yaml not loaded!");
-            }
-        }
-
-        return Tiles.getTileByGlyph(c.toString());
+    public static Tile fromChar(String glyph) {
+        return tiles.get(glyph);
     }
 
 }

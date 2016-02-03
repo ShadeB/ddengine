@@ -16,30 +16,8 @@ import static org.junit.Assert.*;
 public class TestTiles {
 
     @Test
-    public void testLoad() {
-        InputStream is = this.getClass().getClassLoader().getResourceAsStream("tiles.yaml");
-        try {
-            Tiles.load(is);
-            Tile tile = Tiles.getTileByGlyph(".");
-            assertEquals("Floor", tile.getName());
-            assertEquals(".", tile.getGlyph().getCharacter());
-            assertEquals(Color.WHITE, tile.getGlyph().getForeground());
-            assertEquals(Color.BLACK, tile.getGlyph().getBackground());
-        } catch (IOException ex) {
-            fail("Unexpected IOException: " + ex.getMessage());
-        }
-    }
-
-    @Test
     public void testGetFloorTileByName() {
-        try {
-            InputStream is = this.getClass().getClassLoader().getResourceAsStream("tiles.yaml");
-            Tiles.load(is);
-        } catch (IOException ex) {
-            fail("Unexpected IOException: " + ex.getMessage());
-        }
-
-        Tile tile = Tiles.getTileByName(Tiles.FLOOR_NAME);
+        Tile tile = Tiles.FLOOR_TILE;
         assertEquals("Floor", tile.getName());
         assertEquals(".", tile.getGlyph().getCharacter());
         assertEquals(Color.WHITE, tile.getGlyph().getForeground());
@@ -48,14 +26,7 @@ public class TestTiles {
 
     @Test
     public void testGetWallTileByName() {
-        try {
-            InputStream is = this.getClass().getClassLoader().getResourceAsStream("tiles.yaml");
-            Tiles.load(is);
-        } catch (IOException ex) {
-            fail("Unexpected IOException: " + ex.getMessage());
-        }
-
-        Tile tile = Tiles.getTileByName(Tiles.WALL_NAME);
+        Tile tile = Tiles.WALL_TILE;
         assertEquals("Wall", tile.getName());
         assertEquals("#", tile.getGlyph().getCharacter());
         assertEquals(Color.WHITE, tile.getGlyph().getForeground());
@@ -64,14 +35,7 @@ public class TestTiles {
 
     @Test
     public void testGetOpenedDoorTileByName() {
-        try {
-            InputStream is = this.getClass().getClassLoader().getResourceAsStream("tiles.yaml");
-            Tiles.load(is);
-        } catch (IOException ex) {
-            fail("Unexpected IOException: " + ex.getMessage());
-        }
-
-        Tile tile = Tiles.getTileByName(Tiles.OPEN_DOOR_NAME);
+        Tile tile = Tiles.OPENED_DOOR_TILE;
         assertEquals("OpenedDoor", tile.getName());
         assertEquals("'", tile.getGlyph().getCharacter());
         assertEquals(Color.decode("#a06e3c"), tile.getGlyph().getForeground());
@@ -80,14 +44,7 @@ public class TestTiles {
 
     @Test
     public void testGetClosedDoorTileByName() {
-        try {
-            InputStream is = this.getClass().getClassLoader().getResourceAsStream("tiles.yaml");
-            Tiles.load(is);
-        } catch (IOException ex) {
-            fail("Unexpected IOException: " + ex.getMessage());
-        }
-
-        Tile tile = Tiles.getTileByName(Tiles.CLOSED_DOOR_NAME);
+        Tile tile = Tiles.CLOSED_DOOR_TILE;
         assertEquals("ClosedDoor", tile.getName());
         assertEquals("+", tile.getGlyph().getCharacter());
         assertEquals(Color.decode("#a06e3c"), tile.getGlyph().getForeground());

@@ -4,13 +4,7 @@ package com.todc.ddengine.data;
 import com.todc.ddengine.util.Colors;
 import com.todc.ddengine.world.Glyph;
 import com.todc.ddengine.world.Tile;
-import org.yaml.snakeyaml.Yaml;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.todc.ddengine.world.TileBuilder;
 
 
 /**
@@ -18,85 +12,43 @@ import java.util.Map;
  */
 public class Tiles {
 
+    public static final Tile WALL_TILE;
+    public static final Tile FLOOR_TILE;
+    public static final Tile OPENED_DOOR_TILE;
+    public static final Tile CLOSED_DOOR_TILE;
 
-    public static final String WALL_NAME  = "Wall";
-    public static final String FLOOR_NAME = "Floor";
-    public static final String OPEN_DOOR_NAME = "OpenedDoor";
-    public static final String CLOSED_DOOR_NAME = "ClosedDoor";
+    static {
+        WALL_TILE = TileBuilder.getInstance()
+                .name("Wall")
+                .glyph(new Glyph("#", Colors.fromHex("#ffffff"), Colors.fromHex("#000000")))
+                .visible(true)
+                .passable(false)
+                .build();
 
+        FLOOR_TILE = TileBuilder.getInstance()
+                .name("Floor")
+                .glyph(new Glyph(".", Colors.fromHex("#ffffff"), Colors.fromHex("#000000")))
+                .visible(true)
+                .passable(true)
+                .build();
 
-    private static Map<String,Tile> tiles = new HashMap<>();
+        OPENED_DOOR_TILE = TileBuilder.getInstance()
+                .name("OpenedDoor")
+                .glyph(new Glyph("'", Colors.fromHex("#a06e3c"), Colors.fromHex("#000000")))
+                .visible(true)
+                .passable(true)
+                .build();
 
+        CLOSED_DOOR_TILE = TileBuilder.getInstance()
+                .name("ClosedDoor")
+                .glyph(new Glyph("+", Colors.fromHex("#a06e3c"), Colors.fromHex("#000000")))
+                .visible(true)
+                .passable(true)
+                .build();
 
-    public static boolean isLoaded() {
-        return !tiles.isEmpty();
-    }
-
-    public static void load(String filename) throws IOException {
-        load(Tiles.class.getClassLoader().getResourceAsStream(filename));
-    }
-
-    public static void load(InputStream in) throws IOException {
-        Yaml yaml = new Yaml();
-        List<Map<String,Object>> tileData = (List<Map<String,Object>>)yaml.load(in);
-
-        for (Map<String,Object> def : tileData) {
-            String name = (String)def.get("name");
-
-            Tile tile = new Tile();
-            tile.setName(name);
-            tile.setPassable((Boolean)def.get("passable"));
-            tile.setGlyph(new Glyph(
-                (String)def.get("glyph"),
-                Colors.fromHex((String)def.get("foreground")),
-                Colors.fromHex((String)def.get("background"))
-            ));
-
-            if (def.get("opensTo") != null) {
-                Tile opensToTile = Tiles.getTileByName((String)def.get("opensTo"));
-                if (opensToTile != null) {
-                    tile.setOpensTo(opensToTile);
-                }
-            }
-            if (def.get("closesTo") != null) {
-                Tile closesToTile = Tiles.getTileByName((String)def.get("closesTo"));
-                if (closesToTile != null) {
-                    tile.setClosesTo(closesToTile);
-                }
-            }
-
-            tiles.put(name, tile);
-        }
-    }
-
-    public static String[] getTileNames() {
-        return tiles.keySet().toArray(new String[tiles.size()]);
-    }
-
-    public static Tile getTileByGlyph(String glyph) {
-        if (!Tiles.isLoaded()) return null;
-
-        for (Map.Entry<String,Tile> tileEntry : tiles.entrySet()) {
-            Tile tile = tileEntry.getValue();
-            if (tile.getGlyph().getCharacter().equals(glyph)) {
-                return tile;
-            }
-        }
-
-        return null;
-    }
-
-    public static Tile getTileByName(String name) {
-        if (!Tiles.isLoaded()) return null;
-
-        for (Map.Entry<String,Tile> tileEntry : tiles.entrySet()) {
-            Tile tile = tileEntry.getValue();
-            if (tile.getName().equalsIgnoreCase(name)) {
-                return tile;
-            }
-        }
-
-        return null;
+        // need to set these after creation since it's a cyclical reference
+        OPENED_DOOR_TILE.setClosesTo(CLOSED_DOOR_TILE);
+        CLOSED_DOOR_TILE.setOpensTo(OPENED_DOOR_TILE);
     }
 
 }

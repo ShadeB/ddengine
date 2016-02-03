@@ -13,6 +13,7 @@ public class Tile {
     private String name;
     private Glyph glyph;
     private boolean passable;
+    private boolean visible;
     private Tile opensTo;
     private Tile closesTo;
 
@@ -42,6 +43,14 @@ public class Tile {
 
     public void setPassable(boolean passable) {
         this.passable = passable;
+    }
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
     }
 
     public Tile closesTo() {

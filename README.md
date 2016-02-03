@@ -10,13 +10,13 @@
 
 
 DUNGEONS
-- [x] open/close doors
+- [x] open doors
 - [x] hauberk dungeon generator
 - [ ] karcero dungeon generator
 - [ ] moving up/down levels
 - [ ] lighting
 - [ ] pathfinding
-- [ ] multi-key commands (.+direction, T+direction, etc)
+- [ ] multi-key commands (close door, run, tunnel, etc)
 
 MONSTERS
 - [ ] add monsters
