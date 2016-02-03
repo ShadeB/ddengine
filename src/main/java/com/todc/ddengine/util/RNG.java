@@ -20,6 +20,7 @@ public class RNG extends Random {
 
     /**
      * Returns true if a random int chosen between 1 and [chance] was 1.
+     * In other words, simulates the success of a one-in-X chance roll.
      */
     public boolean oneIn(int chance) {
         return nextInt(chance) == 0;

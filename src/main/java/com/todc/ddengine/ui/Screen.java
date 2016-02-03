@@ -44,10 +44,11 @@ public class Screen implements StageListener {
 
     // --------------------------------------------------------- Public Methods
 
+
     @Override
-    public void onStageChange(Actor actor, Coordinate oldPosition, Coordinate newPosition) {
+    public void onStageChange(Actor actor) {
         // is hero off screen?
-        if (isActorOffscreen(stage.getHero())) {
+        if (isOffscreen(stage.getHero().getPosition())) {
             System.out.println("Hero is offscreen.");
             centerViewport();
         }
@@ -64,8 +65,7 @@ public class Screen implements StageListener {
     // -------------------------------------------------------- Private Methods
 
 
-    private boolean isActorOffscreen(Actor actor) {
-        Coordinate position = actor.getPosition();
+    private boolean isOffscreen(Coordinate position) {
         return !viewport.contains(position.x+2, position.y) ||
                !viewport.contains(position.x-2, position.y) ||
                !viewport.contains(position.x, position.y+2) ||
@@ -102,9 +102,7 @@ public class Screen implements StageListener {
         for (int ty=0, vy=viewport.y; ty<viewport.height; ty++, vy++) {
             for (int tx=0, vx=viewport.x; tx<viewport.width; tx++, vx++) {
                 Tile tile = stage.getTileAt(vx, vy);
-                if (tile == null) {
-                    System.out.println("Couldn't find tile at " + vx + "," + vy);
-                }
+                assert(tile != null);
                 Glyph glyph = tile.getGlyph();
 
                 terminal.setCell(tx, ty, glyph.getCharacter(), glyph.getForeground(), glyph.getBackground());

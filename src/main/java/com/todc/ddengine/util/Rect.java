@@ -1,11 +1,13 @@
 package com.todc.ddengine.util;
 
 import java.awt.*;
+import java.util.Iterator;
+import java.util.function.Consumer;
 
 /**
  * @author Tim O'Donnell (tim.odonnell@imperva.com)
  */
-public class Rect extends Rectangle {
+public class Rect extends Rectangle implements Iterable<Coordinate> {
 
 
     // ----------------------------------------------------- Instance Variables
@@ -71,4 +73,55 @@ public class Rect extends Rectangle {
         );
     }
 
+    @Override
+    public Iterator<Coordinate> iterator() {
+        return new RectIterator();
+    }
+
+
+    private class RectIterator implements Iterator<Coordinate> {
+
+
+        // ----------------------------------------------------- Instance Variables
+
+
+        private int x;
+        private int y;
+
+
+        // ----------------------------------------------------------- Constructors
+
+
+        public RectIterator() {
+            this.x = Rect.this.x - 1;
+            this.y = Rect.this.y;
+        }
+
+
+        // --------------------------------------------------------- Public Methods
+
+
+        @Override
+        public boolean hasNext() {
+            int nextY = y;
+            int nextX = x+1;
+            if (nextX >= Rect.this.right) {
+                nextX = Rect.this.x;
+                nextY++;
+            }
+
+            return nextY < Rect.this.bottom;
+        }
+
+        @Override
+        public Coordinate next() {
+            x++;
+            if (x >= Rect.this.right) {
+                x = Rect.this.x;
+                y++;
+            }
+
+            return new Coordinate(x, y);
+        }
+    }
 }

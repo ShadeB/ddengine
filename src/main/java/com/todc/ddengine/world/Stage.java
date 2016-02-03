@@ -90,7 +90,7 @@ public class Stage {
         System.out.println("Moving actor to " + newPosition);
         actor.setPosition(newPosition);
 
-        notifyListeners(actor, oldPosition, newPosition);
+        notifyListeners(actor);
     }
 
     public Coordinate findEmptyTile() {
@@ -106,7 +106,7 @@ public class Stage {
     }
 
     public void setDirty() {
-        notifyListeners(null, null, null);
+        notifyListeners(null);
     }
 
     public void addChangeListener(StageListener listener) {
@@ -117,9 +117,9 @@ public class Stage {
     // -------------------------------------------------------- Private Methods
 
 
-    private void notifyListeners(Actor actor, Coordinate oldPosition, Coordinate newPosition) {
+    private void notifyListeners(Actor actor) {
         for (StageListener listener : changeListeners) {
-            listener.onStageChange(actor, oldPosition, newPosition);
+            listener.onStageChange(actor);
         }
     }
 }

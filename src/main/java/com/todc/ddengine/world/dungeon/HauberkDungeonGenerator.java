@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 ///
 /// The end result of this is a multiply-connected dungeon with rooms and lots
 /// of winding corridors.
-public class DungeonGenerator {
+public class HauberkDungeonGenerator {
 
     {
         if (!Tiles.isLoaded()) {
@@ -141,7 +141,6 @@ public class DungeonGenerator {
     /// Implementation of the "growing tree" algorithm from here:
     /// http://www.astrolog.org/labyrnth/algrithm.htm.
     void _growMaze(Coordinate start) {
-        //List<Coordinate> cells = new ArrayList<Coordinate>();
         Stack<Coordinate> cells = new Stack<>();
         Direction lastDir = null;
 
@@ -227,8 +226,9 @@ public class DungeonGenerator {
 
             //System.out.println("  Carving room...");
             _startRegion();
-            List<Coordinate> coords = getCoordinatesInRect(room);
-            coords.forEach(this::_carve);
+            for (Coordinate pos : room) {
+                _carve(pos);
+            }
         }
     }
 
@@ -236,8 +236,7 @@ public class DungeonGenerator {
         // Find all of the tiles that can connect two (or more) regions.
         Map<Coordinate,Set<Integer>> connectorRegions = new HashMap<>();
 
-        List<Coordinate> coordsInRect = getCoordinatesInRect(bounds.inflate(-1));
-        for (Coordinate pos : coordsInRect) {
+        for (Coordinate pos : bounds.inflate(-1)) {
             // Can't already be part of a region.
             if (getTile(pos) != WALL_TILE) continue;
 
@@ -327,10 +326,7 @@ public class DungeonGenerator {
         while (!done) {
             done = true;
 
-            Rect shrunkBounds = bounds.inflate(-1);
-            List<Coordinate> coords = getCoordinatesInRect(shrunkBounds);
-
-            for (Coordinate pos : coords) {
+            for (Coordinate pos : bounds.inflate(-1)) {
                 if (getTile(pos) == WALL_TILE) continue;
 
                 // If it only has one exit, it's a dead end.
@@ -345,18 +341,6 @@ public class DungeonGenerator {
                 setTile(pos, WALL_TILE);
             }
         }
-    }
-
-    private List<Coordinate> getCoordinatesInRect(Rect rect) {
-        List<Coordinate> coords = new ArrayList<>();
-
-        for (int row=rect.y; row<rect.bottom; row++) {
-            for (int col=rect.x; col<rect.right; col++) {
-                coords.add(new Coordinate(col, row));
-            }
-        }
-
-        return coords;
     }
 
     /// Gets whether or not an opening can be carved from the given starting
@@ -378,15 +362,11 @@ public class DungeonGenerator {
     private void _carve(Coordinate pos) {
         this.tiles[pos.y][pos.x] = FLOOR_TILE;
         _regions.put(pos, _currentRegion);
-
-        //System.out.println("\nSetting " + pos + " = FLOOR");
-        //System.out.println("*************");
-        //printDungeon(this.tiles);
     }
 
 
     public static void main(String... args) throws Exception {
-        DungeonGenerator generator = new DungeonGenerator();
+        HauberkDungeonGenerator generator = new HauberkDungeonGenerator();
         Tile[][] tiles = generator.generate(135, 65);
     }
 

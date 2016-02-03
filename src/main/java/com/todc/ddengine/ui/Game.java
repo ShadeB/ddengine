@@ -9,7 +9,7 @@ import com.todc.ddengine.ui.terminal.Terminal;
 import com.todc.ddengine.world.Hero;
 import com.todc.ddengine.world.Stage;
 import com.todc.ddengine.world.Tile;
-import com.todc.ddengine.world.dungeon.DungeonGenerator;
+import com.todc.ddengine.world.dungeon.HauberkDungeonGenerator;
 
 import java.awt.event.KeyEvent;
 import javax.swing.JFrame;
@@ -57,7 +57,7 @@ public class Game {
 public class Game {
 
     public static void main(String... args) throws Exception {
-        DungeonGenerator generator = new DungeonGenerator();
+        HauberkDungeonGenerator generator = new HauberkDungeonGenerator();
         Tile[][] tiles = generator.generate(35, 35);
         Stage stage = new Stage(tiles);
 
