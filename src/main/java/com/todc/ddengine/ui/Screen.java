@@ -1,6 +1,7 @@
 package com.todc.ddengine.ui;
 
 
+import com.todc.ddengine.data.Tiles;
 import com.todc.ddengine.ui.terminal.Terminal;
 import com.todc.ddengine.util.Coordinate;
 import com.todc.ddengine.world.Actor;
@@ -8,6 +9,8 @@ import com.todc.ddengine.world.Glyph;
 import com.todc.ddengine.world.Stage;
 import com.todc.ddengine.world.StageListener;
 import com.todc.ddengine.world.Tile;
+import com.todc.ddengine.world.fov.AdamMilazzo;
+import com.todc.ddengine.world.fov.FieldOfViewCalculator;
 
 import java.awt.Rectangle;
 
@@ -23,9 +26,13 @@ public class Screen implements StageListener {
     // ----------------------------------------------------- Instance Variables
 
 
+    // todo: this should be a function of the hero
+    private int VIEWABLE_RANGE = 5;
+
     private Terminal terminal;
     private Stage stage;
     private Rectangle viewport;
+    private FieldOfViewCalculator fov;
 
 
     // ----------------------------------------------------------- Constructors
@@ -35,6 +42,7 @@ public class Screen implements StageListener {
         this.stage = stage;
         this.terminal = terminal;
         this.viewport = new Rectangle(0, 0, terminal.getNumCols(), terminal.getNumRows());
+        this.fov = new AdamMilazzo(this::blocksLight, this::setVisible, this::getDistance);
 
         centerViewport();
 
@@ -49,7 +57,6 @@ public class Screen implements StageListener {
     public void onStageChange(Actor actor) {
         // is hero off screen?
         if (isOffscreen(stage.getHero().getPosition())) {
-            System.out.println("Hero is offscreen.");
             centerViewport();
         }
 
@@ -58,11 +65,31 @@ public class Screen implements StageListener {
 
     public void refresh() {
         copyStageToTerminal();
+
+        Coordinate pos = stage.getHero().getPosition();
+        fov.compute(pos.x, pos.y, VIEWABLE_RANGE);
+
         terminal.repaint();
     }
 
 
     // -------------------------------------------------------- Private Methods
+
+
+    // FieldOfViewCalculator callback
+    private boolean blocksLight(Integer x, Integer y) {
+        return this.stage.getTileAt(x, y) == Tiles.WALL_TILE;
+    }
+
+    // FieldOfViewCalculator callback
+    private void setVisible(Integer x, Integer y) {
+
+    }
+
+    // FieldOfViewCalculator callback
+    private Integer getDistance(Integer x, Integer y) {
+        return Math.abs(x) + Math.abs(y);
+    }
 
 
     private boolean isOffscreen(Coordinate position) {
