@@ -6,6 +6,7 @@ import com.todc.ddengine.util.Direction;
 import com.todc.ddengine.util.RNG;
 import com.todc.ddengine.util.Rect;
 import com.todc.ddengine.world.Tile;
+import com.todc.ddengine.world.TileType;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -46,10 +47,7 @@ import static com.todc.ddengine.data.Tiles.*;
  * @author Tim O'Donnell (tim@timodonnell.com)
  * @author Bob Nystrom
  */
-public class HauberkDungeonGenerator {
-
-
-    // -------------------------------------------------------------- Constants
+public class HauberkDungeonGenerator implements DungeonGenerator {
 
 
     // ----------------------------------------------------- Instance Variables
@@ -107,10 +105,10 @@ public class HauberkDungeonGenerator {
     // -------------------------------------------------------- Private Methods
 
 
-    private void fill(Tile fillTile) {
+    private void fill(TileType fillType) {
         for (int row=0; row<tiles.length; row++) {
             for (int col=0; col<tiles[row].length; col++) {
-                tiles[row][col] = fillTile;
+                tiles[row][col] = new Tile(fillType);
             }
         }
     }
@@ -164,7 +162,7 @@ public class HauberkDungeonGenerator {
         for (int y=1; y<bounds.height; y+=2) {
             for (int x=1; x<bounds.width; x+=2) {
                 Coordinate pos = new Coordinate(x, y);
-                if (getTile(pos) != WALL_TILE) continue;
+                if (getTileType(pos) != WALL_TILE) continue;
                 growMaze(pos);
             }
         }
@@ -176,7 +174,7 @@ public class HauberkDungeonGenerator {
 
         for (Coordinate pos : bounds.inflate(-1)) {
             // Can't already be part of a region.
-            if (getTile(pos) != WALL_TILE) continue;
+            if (getTileType(pos) != WALL_TILE) continue;
 
             Set<Integer> regions = new HashSet<>();
             for (Direction dir : Direction.CARDINAL) {
@@ -262,18 +260,18 @@ public class HauberkDungeonGenerator {
             done = true;
 
             for (Coordinate pos : bounds.inflate(-1)) {
-                if (getTile(pos) == WALL_TILE) continue;
+                if (getTileType(pos) == WALL_TILE) continue;
 
                 // If it only has one exit, it's a dead end.
                 int exits = 0;
                 for (Direction dir : Direction.CARDINAL) {
-                    if (getTile(pos.add(dir)) != WALL_TILE) exits++;
+                    if (getTileType(pos.add(dir)) != WALL_TILE) exits++;
                 }
 
                 if (exits != 1) continue;
 
                 done = false;
-                setTile(pos, WALL_TILE);
+                setTile(pos, new Tile(WALL_TILE));
             }
         }
     }
@@ -329,9 +327,9 @@ public class HauberkDungeonGenerator {
 
     private void addJunction(Coordinate pos) {
         if (rng.oneIn(4)) {
-            this.tiles[pos.y][pos.x] = (rng.oneIn(3)) ? OPENED_DOOR_TILE : FLOOR_TILE;
+            this.tiles[pos.y][pos.x] = (rng.oneIn(3)) ? new Tile(OPENED_DOOR_TILE) : new Tile(FLOOR_TILE);
         } else {
-            this.tiles[pos.y][pos.x] = CLOSED_DOOR_TILE;
+            this.tiles[pos.y][pos.x] = new Tile(CLOSED_DOOR_TILE);
         }
     }
 
@@ -344,16 +342,20 @@ public class HauberkDungeonGenerator {
         if (!bounds.contains(pos.x+direction.x*3, pos.y+direction.y*3)) return false;
 
         // Destination must not be open.
-        return getTile(new Coordinate(pos.x+direction.x*2, pos.y+direction.y*2)) == WALL_TILE;
+        return getTileType(new Coordinate(pos.x+direction.x*2, pos.y+direction.y*2)) == WALL_TILE;
     }
 
     private void carve(Coordinate pos) {
-        this.tiles[pos.y][pos.x] = FLOOR_TILE;
+        this.tiles[pos.y][pos.x] = new Tile(FLOOR_TILE);
         _regions.put(pos, _currentRegion);
     }
 
     private Tile getTile(Coordinate coord) {
         return tiles[coord.y][coord.x];
+    }
+
+    private TileType getTileType(Coordinate coord) {
+        return getTile(coord).getType();
     }
 
     private void setTile(Coordinate coord, Tile tile) {

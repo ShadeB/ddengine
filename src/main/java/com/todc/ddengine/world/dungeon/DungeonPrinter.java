@@ -2,6 +2,7 @@ package com.todc.ddengine.world.dungeon;
 
 
 import com.todc.ddengine.world.Tile;
+import com.todc.ddengine.world.TileType;
 
 
 /**
@@ -17,7 +18,7 @@ public class DungeonPrinter {
         StringBuilder sb = new StringBuilder();
         for (Tile[] tile : tiles) {
             for (int x=0; x<tile.length; x++) {
-                String c = tile[x] == null ? " " : tile[x].getGlyph().getCharacter();
+                String c = tile[x] == null ? " " : tile[x].getType().getGlyph().getCharacter();
                 sb.append(c);
                 if (x + 1 >= tile.length) {
                     sb.append("\n");

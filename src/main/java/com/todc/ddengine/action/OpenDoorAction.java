@@ -3,6 +3,7 @@ package com.todc.ddengine.action;
 import com.todc.ddengine.util.Coordinate;
 import com.todc.ddengine.world.Stage;
 import com.todc.ddengine.world.Tile;
+import com.todc.ddengine.world.TileType;
 
 /**
  * @author Tim O'Donnell (tim.odonnell@imperva.com)
@@ -32,7 +33,8 @@ public class OpenDoorAction extends Action {
     @Override
     public ActionResult perform() {
         Tile closedDoorTile = stage.getTileAt(closedDoorPos);
-        stage.setTileAt(closedDoorPos, closedDoorTile.opensTo());
+        TileType openDoorTileType = closedDoorTile.getType().opensTo();
+        stage.setTileAt(closedDoorPos, new Tile(openDoorTileType));
 
         stage.setDirty();
 

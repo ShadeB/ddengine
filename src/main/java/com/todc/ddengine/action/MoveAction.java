@@ -65,7 +65,7 @@ public class MoveAction extends Action {
 
         Tile destTile = stage.getTileAt(destination.x, destination.y);
 
-        if (destTile.opensTo() != null) {
+        if (destTile.getType().opensTo() != null) {
             return alternate(new OpenDoorAction(stage, destination));
         }
 

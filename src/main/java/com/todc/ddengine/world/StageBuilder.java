@@ -1,9 +1,6 @@
 package com.todc.ddengine.world;
 
 
-import com.todc.ddengine.data.Tiles;
-
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,7 +20,7 @@ public class StageBuilder {
     public static final int MAP_MAX_ROWS = 1000;
 
 
-    private static Map<String, Tile> tiles = new HashMap<String,Tile>() {{
+    private static Map<String, TileType> tiles = new HashMap<String,TileType>() {{
         put(WALL_TILE.getGlyph().getCharacter(),        WALL_TILE);
         put(FLOOR_TILE.getGlyph().getCharacter(),       FLOOR_TILE);
         put(OPENED_DOOR_TILE.getGlyph().getCharacter(), OPENED_DOOR_TILE);
@@ -62,7 +59,7 @@ public class StageBuilder {
 
 
     public static Tile fromChar(String glyph) {
-        return tiles.get(glyph);
+        return new Tile(tiles.get(glyph));
     }
 
 }

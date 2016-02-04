@@ -1,8 +1,7 @@
 package com.todc.ddengine.world;
 
-
 /**
- * @author Tim O'Donnell (tim@timodonnell.com)
+ * @author Tim O'Donnell (tim.odonnell@imperva.com)
  */
 public class Tile {
 
@@ -10,39 +9,28 @@ public class Tile {
     // ----------------------------------------------------- Instance Variables
 
 
-    private String name;
-    private Glyph glyph;
-    private boolean passable;
-    private boolean visible;
-    private Tile opensTo;
-    private Tile closesTo;
+    private TileType type;
+    private boolean explored = false;
+    private boolean visible = false;
 
 
     // --------------------------------------------------------------- Mutators
 
 
-    public Glyph getGlyph() {
-        return glyph;
+    public TileType getType() {
+        return type;
     }
 
-    public void setGlyph(Glyph glyph) {
-        this.glyph = glyph;
+    public void setType(TileType type) {
+        this.type = type;
     }
 
-    public String getName() {
-        return name;
+    public boolean isExplored() {
+        return explored;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public boolean isPassable() {
-        return passable;
-    }
-
-    public void setPassable(boolean passable) {
-        this.passable = passable;
+    public void setExplored(boolean explored) {
+        this.explored = explored;
     }
 
     public boolean isVisible() {
@@ -50,28 +38,23 @@ public class Tile {
     }
 
     public void setVisible(boolean visible) {
+        if (visible) explored = true;
         this.visible = visible;
-    }
-
-    public Tile closesTo() {
-        return closesTo;
-    }
-
-    public void setClosesTo(Tile closesTo) {
-        this.closesTo = closesTo;
-    }
-
-    public Tile opensTo() {
-        return opensTo;
-    }
-
-    public void setOpensTo(Tile opensTo) {
-        this.opensTo = opensTo;
     }
 
 
     // ----------------------------------------------------------- Constructors
 
 
+    public Tile(TileType type) {
+        this.type = type;
+    }
 
+
+    // --------------------------------------------------------- Public Methods
+
+
+    public boolean isPassable() {
+        return this.type.isPassable();
+    }
 }

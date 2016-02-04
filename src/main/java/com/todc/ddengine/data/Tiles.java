@@ -3,8 +3,8 @@ package com.todc.ddengine.data;
 
 import com.todc.ddengine.util.Colors;
 import com.todc.ddengine.world.Glyph;
-import com.todc.ddengine.world.Tile;
-import com.todc.ddengine.world.TileBuilder;
+import com.todc.ddengine.world.TileType;
+import com.todc.ddengine.world.TileTypeBuilder;
 
 
 /**
@@ -12,37 +12,37 @@ import com.todc.ddengine.world.TileBuilder;
  */
 public class Tiles {
 
-    public static final Tile WALL_TILE;
-    public static final Tile FLOOR_TILE;
-    public static final Tile OPENED_DOOR_TILE;
-    public static final Tile CLOSED_DOOR_TILE;
+    public static final TileType WALL_TILE;
+    public static final TileType FLOOR_TILE;
+    public static final TileType OPENED_DOOR_TILE;
+    public static final TileType CLOSED_DOOR_TILE;
 
     static {
-        WALL_TILE = TileBuilder.getInstance()
+        WALL_TILE = TileTypeBuilder.getInstance()
                 .name("Wall")
                 .glyph(new Glyph("#", Colors.fromHex("#ffffff"), Colors.fromHex("#000000")))
-                .visible(true)
+                .blocksLight(true)
                 .passable(false)
                 .build();
 
-        FLOOR_TILE = TileBuilder.getInstance()
+        FLOOR_TILE = TileTypeBuilder.getInstance()
                 .name("Floor")
                 .glyph(new Glyph(".", Colors.fromHex("#ffffff"), Colors.fromHex("#000000")))
-                .visible(true)
+                .blocksLight(false)
                 .passable(true)
                 .build();
 
-        OPENED_DOOR_TILE = TileBuilder.getInstance()
+        OPENED_DOOR_TILE = TileTypeBuilder.getInstance()
                 .name("OpenedDoor")
                 .glyph(new Glyph("'", Colors.fromHex("#a06e3c"), Colors.fromHex("#000000")))
-                .visible(true)
+                .blocksLight(false)
                 .passable(true)
                 .build();
 
-        CLOSED_DOOR_TILE = TileBuilder.getInstance()
+        CLOSED_DOOR_TILE = TileTypeBuilder.getInstance()
                 .name("ClosedDoor")
                 .glyph(new Glyph("+", Colors.fromHex("#a06e3c"), Colors.fromHex("#000000")))
-                .visible(true)
+                .blocksLight(true)
                 .passable(true)
                 .build();
 

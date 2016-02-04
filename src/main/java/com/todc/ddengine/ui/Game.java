@@ -20,40 +20,6 @@ import javax.swing.WindowConstants;
 /**
  * @author Tim O'Donnell (tim@timodonnell.com)
  */
-/*
-public class Game {
-
-    public static void main(String... args) throws Exception {
-        JFrame frame = new JFrame("my window title");
-        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-
-        // create components and put them in the frame
-
-        // the pack method sizes the frame so that all its contents are at or above their preferred sizes.
-        // An alternative to pack is to establish a frame size explicitly by calling setSize or setBounds (which
-        // also sets the frame location). In general, using pack is preferable to calling setSize, since pack
-        // leaves the frame layout manager in charge of the frame size, and layout managers are good at adjusting to
-        // platform dependencies and other factors that affect component size.
-        frame.setBounds(50, 50, 400, 300);
-
-        // add our custom text component
-        Container container = frame.getContentPane();
-        Terminal terminal = new Terminal();
-        container.add(terminal);
-
-        frame.setVisible(true);
-
-//        ActionListener listener = event -> {
-//            System.out.println("refreshing terminal");
-//            terminal.refresh();
-//        };
-//        Timer displayTimer = new Timer(5000, listener);
-//        displayTimer.start();
-    }
-
-}
-*/
-
 public class Game {
 
     public static void main(String... args) throws Exception {
