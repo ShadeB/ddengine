@@ -7,7 +7,7 @@ import com.todc.ddengine.world.*;
 import com.todc.ddengine.world.fov.AdamMilazzo;
 import com.todc.ddengine.world.fov.FieldOfViewCalculator;
 
-import java.awt.Rectangle;
+import java.awt.*;
 
 
 /**
@@ -22,7 +22,7 @@ public class Screen implements StageListener {
 
 
     // todo: this should be a function of the hero
-    private int VIEWABLE_RANGE = 5;
+    private int VIEWABLE_RANGE = 10;
 
     private Terminal terminal;
     private Stage stage;
@@ -59,6 +59,8 @@ public class Screen implements StageListener {
     }
 
     public void refresh() {
+        resetVisibility();
+
         Coordinate pos = stage.getHero().getPosition();
         fov.compute(pos.x, pos.y, VIEWABLE_RANGE);
 
@@ -117,6 +119,14 @@ public class Screen implements StageListener {
         System.out.println("Recentered viewport to: " + viewport.x + ", " + viewport.x + ", " + viewport.width + ", " + viewport.height);
     }
 
+    private void resetVisibility() {
+        for (int y=0; y<stage.getHeight(); y++) {
+            for (int x = 0; x < stage.getWidth(); x++) {
+                stage.getTileAt(x, y).setVisible(false);
+            }
+        }
+    }
+
     private void copyStageToTerminal() {
         System.out.println("Copying stage to terminal");
 
@@ -127,11 +137,20 @@ public class Screen implements StageListener {
                 assert(tile != null);
                 Glyph glyph = tile.getType().getGlyph();
 
+                Color fg;
+                if (tile.isVisible()) {
+                    fg = glyph.getForeground();
+                } else if (tile.isExplored()) {
+                    fg = glyph.getForeground().darker();
+                } else {
+                    fg = glyph.getBackground();
+                }
+
                 terminal.setCell(
                         tx,
                         ty,
                         glyph.getCharacter(),
-                        tile.isVisible() ? glyph.getForeground() : glyph.getBackground(),
+                        fg,
                         glyph.getBackground()
                 );
             }
